@@ -17,11 +17,19 @@ public class Day1Test {
 
         int result = day.solvePuzzle1(lines);
 
-        Assert.assertEquals(24000, result);
+        Assert.assertEquals(3, result);
     }
 
     @Test
     public void testSolution1() {
+
+        List<String> lines = ResourceHelper.loadLinesFromFile("Day1/input1.txt");
+
+        Day1 day = new Day1();
+
+        int result = day.solvePuzzle1(lines);
+
+        Assert.assertEquals(1180, result);
 
     }
 
@@ -34,12 +42,19 @@ public class Day1Test {
 
         int result = day.solvePuzzle2(lines);
 
-        Assert.assertEquals(45000, result);
+        Assert.assertEquals(6, result);
     }
 
     @Test
     public void testSolution2() {
 
+        List<String> lines = ResourceHelper.loadLinesFromFile("Day1/input1.txt");
+
+        Day1 day = new Day1();
+
+        int result = day.solvePuzzle2(lines);
+
+        Assert.assertEquals(6892, result);
     }
 
 }
