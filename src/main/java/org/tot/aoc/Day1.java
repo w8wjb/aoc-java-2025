@@ -1,7 +1,6 @@
 package org.tot.aoc;
 
 import java.util.List;
-import java.util.Scanner;
 
 public class Day1 {
 
