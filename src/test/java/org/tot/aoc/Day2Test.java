@@ -17,7 +17,7 @@ public class Day2Test {
 
         long result = day.solvePuzzle1(lines);
 
-        Assert.assertEquals(1227775554l, result);
+        Assert.assertEquals(1227775554L, result);
     }
 
     @Test
@@ -29,32 +29,56 @@ public class Day2Test {
 
         long result = day.solvePuzzle1(lines);
 
-        Assert.assertEquals(23560874270l, result);
+        Assert.assertEquals(23560874270L, result);
 
     }
 
     @Test
-    public void testSample2() {
+    public void testSample2A() {
 
         List<String> lines = ResourceHelper.loadLinesFromFile("Day2/sample1.txt");
 
         Day2 day = new Day2();
 
-        long result = day.solvePuzzle2(lines);
+        long result = day.solvePuzzle2A(lines);
 
-        Assert.assertEquals(4174379265l, result);
+        Assert.assertEquals(4174379265L, result);
     }
 
     @Test
-    public void testSolution2() {
+    public void testSolution2A() {
 
         List<String> lines = ResourceHelper.loadLinesFromFile("Day2/input1.txt");
 
         Day2 day = new Day2();
 
-        long result = day.solvePuzzle2(lines);
+        long result = day.solvePuzzle2A(lines);
 
-        Assert.assertEquals(44143124633l, result);
+        Assert.assertEquals(44143124633L, result);
+    }
+
+    @Test
+    public void testSample2B() {
+
+        List<String> lines = ResourceHelper.loadLinesFromFile("Day2/sample1.txt");
+
+        Day2 day = new Day2();
+
+        long result = day.solvePuzzle2B(lines);
+
+        Assert.assertEquals(4174379265L, result);
+    }
+
+    @Test
+    public void testSolution2B() {
+
+        List<String> lines = ResourceHelper.loadLinesFromFile("Day2/input1.txt");
+
+        Day2 day = new Day2();
+
+        long result = day.solvePuzzle2B(lines);
+
+        Assert.assertEquals(44143124633L, result);
     }
 
 }

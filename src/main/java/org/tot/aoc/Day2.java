@@ -1,11 +1,22 @@
 package org.tot.aoc;
 
-import java.util.List;
-import java.util.StringTokenizer;
+import java.util.*;
 
+import org.apache.commons.lang3.Range;
 import org.apache.commons.lang3.StringUtils;
 
 public class Day2 {
+
+    final long[] pow10;
+
+    public Day2() {
+
+        // Precompute powers of 10 (0 to 10)
+        long[] tmpPow10 = new long[11];
+        tmpPow10[0] = 1;
+        for (int i = 1; i <= 10; i++) tmpPow10[i] = tmpPow10[i - 1] * 10;
+        this.pow10 = tmpPow10;
+    }
 
     public long solvePuzzle1(List<String> input) {
 
@@ -40,7 +51,7 @@ public class Day2 {
         return invalidIDsum;
     }
 
-    public long solvePuzzle2(List<String> input) {
+    public long solvePuzzle2A(List<String> input) {
 
         long invalidIDsum = 0;
 
@@ -69,7 +80,6 @@ public class Day2 {
                     String compare = StringUtils.repeat(pattern, digitCount / chunkSize);
 
                     if (compare.equals(numString)) {
-                        System.out.println(numString);
                         invalidIDsum += num;
                         chunkSize = 0; // Found one; skip the any remaining chunk sizes
                     }
@@ -79,6 +89,70 @@ public class Day2 {
             }
 
         }
+
+        return invalidIDsum;
+    }
+
+    private long buildRepeatingNumber(long pattern, int digitCount, int repetitions) {
+        long value = 0;
+
+        for (int r = 0; r < repetitions; r++) {
+            value = value * pow10[digitCount] + pattern;
+        }
+
+        return value;
+    }
+
+    List<Long> generateRepeatingNumbers(int maxDigits) {
+        List<Long> results = new ArrayList<>();
+
+        // pattern length d = 1..(maxDigits/2)
+        for (int digitCount = 1; digitCount <= maxDigits / 2; digitCount++) {
+
+            long minPattern = pow10[digitCount - 1];
+            long maxPattern = pow10[digitCount] - 1;
+
+            for (long pattern = minPattern; pattern <= maxPattern; pattern++) {
+
+                for (int repetitions = 2; repetitions * digitCount <= maxDigits; repetitions++) {
+                    long number = buildRepeatingNumber(pattern, digitCount, repetitions);
+                    results.add(number);
+                }
+            }
+        }
+
+        return results;
+    }
+
+    public long solvePuzzle2B(List<String> input) {
+
+        long invalidIDsum = 0;
+        int maxDigits = 10;
+
+        String inputLine = input.get(0);
+
+        StringTokenizer tokens = new StringTokenizer(inputLine, ",-");
+
+        List<Long> repeatingNumbers = generateRepeatingNumbers(maxDigits);
+
+        List<Range<Long>> ranges = new ArrayList<>();
+        while (tokens.hasMoreTokens()) {
+            long start = Long.parseLong(tokens.nextToken());
+            long end = Long.parseLong(tokens.nextToken());
+            ranges.add(Range.between(start, end));
+        }
+
+        Set<Long> invalidNumbers = new HashSet<>();
+
+        for (var num: repeatingNumbers) {
+            for (var range : ranges) {
+                if (range.contains(num)) {
+                    invalidNumbers.add(num);
+                }
+            }
+        }
+
+        invalidIDsum = invalidNumbers.stream().reduce(0L, Long::sum);
 
         return invalidIDsum;
     }
