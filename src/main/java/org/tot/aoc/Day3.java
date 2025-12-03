@@ -8,11 +8,19 @@ public class Day3 {
 
     private long largestJoltage(String line) {
         for (char left : digits) {
+
+            // The concept here is that the maximum value is '99'. The first number is obviously more
+            // important because it's in the 10's place, so we find that first.
+            // Once we find the largest number on the left, we scan the remaining digits from the right
+
+            // Starting with 9 and counting down, find the first instance of digit from the left.
             int leftIndex = line.indexOf(left);
             if (leftIndex < 0) {
+                // If it wasn't found, go to the next number down
                 continue;
             }
 
+            // Once we find that, then look for the largest digit that appears to the right, starting from the end
             char max = 0;
             for (int i = line.length() - 1; i > leftIndex; i--) {
                 char right = line.charAt(i);
