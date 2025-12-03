@@ -34,7 +34,6 @@ public class Day3 {
 
         for (String line : input) {
             totalOutputJoltage += largestJoltage(line);
-            ;
         }
 
         return totalOutputJoltage;
@@ -52,15 +51,18 @@ public class Day3 {
         char[] joltageChars = new char[jlen];
         int[] sourceIndexes = new int[jlen];
 
+        int digitCount = input.get(0).length();
+        int[] sourceIndexesInit = new int[jlen];
+        for (int i = 0; i < sourceIndexesInit.length; i++) {
+            sourceIndexesInit[i] = digitCount - jlen + i;
+        }
+
         for (String line : input) {
 
             char[] allDigits = line.toCharArray();
 
-            // Fill sourceIndexes with the last X characters of the input
-            for (int i = 0; i < jlen; i++) {
-                int sourceIndex = allDigits.length - jlen + i;
-                sourceIndexes[i] = sourceIndex;
-            }
+            // Reset sourceIndexes to the indexes of last X characters of the input
+            System.arraycopy(sourceIndexesInit, 0, sourceIndexes, 0, sourceIndexes.length);
 
             // Now we have the 'worst case' scenario loaded in sourceIndex.
             // We must have 12 digits, so worst case would be the last 12 digits
@@ -87,7 +89,10 @@ public class Day3 {
                 joltageChars[digit] = max;
             }
 
-            long joltage = Long.parseLong(String.valueOf(joltageChars));
+            long joltage = 0L;
+            for (int i = 0; i < jlen; i++) {
+                joltage = joltage * 10 + (joltageChars[i] - '0');
+            }
             totalJoltage += joltage;
         }
 
