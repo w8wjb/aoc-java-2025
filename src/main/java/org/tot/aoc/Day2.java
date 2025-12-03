@@ -51,6 +51,13 @@ public class Day2 {
         return invalidIDsum;
     }
 
+
+    /**
+     * This was my first solution. The approach is to find divisible chunk sizes and then generate a
+     * string that repeats the chunks. For example, a 10-digit number has valid chunk sizes of 5, 2, and 1.
+     * So, when checking chunk 5, grab the first 5 digits from the overall number, repeat it 2 times and then
+     * compare it to the original. If it doesn't match, repeat chunk 2 x 5 and compare, and so on.
+     */
     public long solvePuzzle2A(List<String> input) {
 
         long invalidIDsum = 0;
@@ -124,6 +131,15 @@ public class Day2 {
         return results;
     }
 
+    /**
+     * This approach is the opposite of solution 2A. Instead of looping through the ranges and checking each number
+     * for a repeating pattern, this generates a list of all possible repeating numbers and then checks each one
+     * to see if they fall in any of the ranges.
+     * <p>
+     * In comparison, the advantage this has is that all the numbers stay numbers; it doesn't construct
+     * a lot of garbage strings. This makes it about 10x faster.
+     * </p>
+     */
     public long solvePuzzle2B(List<String> input) {
 
         long invalidIDsum = 0;
