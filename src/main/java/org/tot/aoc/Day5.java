@@ -93,11 +93,8 @@ public class Day5 {
                 break;
             }
 
-            try (Scanner scanner = new Scanner(line).useDelimiter("-")) {
-                long left = scanner.nextLong();
-                long right = scanner.nextLong();
-                ranges.add(new Range(left, right));
-            }
+            final var parts = line.split("-");
+            ranges.add(new Range(Long.parseLong(parts[0]), Long.parseLong(parts[1])));
         }
 
         ranges.sort(Comparator.comparingLong(Range::getMin));
