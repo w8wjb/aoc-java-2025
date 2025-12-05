@@ -1,10 +1,6 @@
 package org.tot.aoc;
 
 
-
-import org.apache.commons.lang3.Range;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-
 import java.util.*;
 
 public class Day5 {
@@ -62,10 +58,11 @@ public class Day5 {
             }
 
             if (inRanges) {
-                Scanner scanner = new Scanner(line).useDelimiter("-");
-                long left = scanner.nextLong();
-                long right = scanner.nextLong();
-                ranges.add(new Range(left, right));
+                try (Scanner scanner = new Scanner(line).useDelimiter("-")) {
+                    long left = scanner.nextLong();
+                    long right = scanner.nextLong();
+                    ranges.add(new Range(left, right));
+                }
             } else {
                 ingredients.add(Long.parseLong(line));
             }
@@ -91,16 +88,16 @@ public class Day5 {
 
         List<Range> ranges = new ArrayList<>();
 
-        boolean inRanges = true;
         for (String line : input) {
             if (line.isBlank()) {
                 break;
             }
 
-            Scanner scanner = new Scanner(line).useDelimiter("-");
-            long left = scanner.nextLong();
-            long right = scanner.nextLong();
-            ranges.add(new Range(left, right));
+            try (Scanner scanner = new Scanner(line).useDelimiter("-")) {
+                long left = scanner.nextLong();
+                long right = scanner.nextLong();
+                ranges.add(new Range(left, right));
+            }
         }
 
         ranges.sort(Comparator.comparingLong(Range::getMin));
