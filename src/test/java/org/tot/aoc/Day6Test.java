@@ -57,4 +57,28 @@ public class Day6Test {
         Assert.assertEquals(11643736116335L, result);
     }
 
+    @Test
+    public void testSample2A() {
+
+        List<String> lines = ResourceHelper.loadLinesFromFile("Day6/sample1.txt");
+
+        Day6 day = new Day6();
+
+        long result = day.solvePuzzle2A(lines);
+
+        Assert.assertEquals(3263827L, result);
+    }
+
+    @Test
+    public void testSolution2A() {
+
+        List<String> lines = ResourceHelper.loadLinesFromFile("Day6/input1.txt");
+
+        Day6 day = new Day6();
+
+        long result = day.solvePuzzle2A(lines);
+
+        Assert.assertEquals(11643736116335L, result);
+    }
+
 }
