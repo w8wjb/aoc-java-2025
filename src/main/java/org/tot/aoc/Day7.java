@@ -64,45 +64,60 @@ public class Day7 {
 
     public long solvePuzzle2(List<String> input) {
 
-        String first = input.remove(0);
+        // Need to grab the first line to get the sizing for the arrays
+        String first = input.get(0);
+        // Find where in the 'S' is
         int start = first.indexOf('S');
 
+        // Create 2 arrays that will hold the counts of tachyons in each column
+        // The flow is source ---splitters--> sink
         long[] source = new long[first.length()];
+        long[] sink = new long[source.length];
+
+        // Mark the starting tachyon
         source[start] = 1;
 
-        for (String row : input) {
+        // Iterate through each row, skipping the first one
+        for (int row = 1; row < input.size(); row++) {
+            char[] splitters = input.get(row).toCharArray();
 
-            char[] splitters = row.toCharArray();
-            long[] sink = new long[source.length];
+            // Clear out any data from previous pass
+            Arrays.fill(sink, 0L);
 
-            for (int i = 0; i < source.length; i++) {
-                long in = source[i];
-                char splitter = splitters[i];
+            // Iterate through each column
+            for (int col = 0; col < source.length; col++) {
+
+                long in = source[col];
+                char splitter = splitters[col];
 
                 if (splitter == '^') {
-                    int iLeft = i - 1;
-                    int iRight = i + 1;
-
-                    sink[i] = 0;
-                    if (iLeft >= 0) {
-                        sink[iLeft] += in;
-                    }
-                    if (iRight < sink.length) {
-                        sink[iRight] += in;
-                    }
+                    // Add the numbers to the left and right of the splitter
+                    sink[col] = 0;
+                    sink[col - 1] += in;
+                    sink[col + 1] += in;
+                    // Note: I originally included bounds checking here, but Eric was kind to us
+                    // and included an empty band around the puzzle so it never runs off the edge
 
                 } else {
-                    sink[i] += in;
+                    sink[col] += in;
                 }
 
             }
 
+            // Swap source/sink
+            // This is done to avoid allocating new arrays all the time.
+            // Sink becomes the new source and the old source will be zeroed out
+            long[] tmp = source;
             source = sink;
+            sink = tmp;
 
         }
 
-        return Arrays.stream(source).sum();
-
+        long sum = 0L;
+        for (long v : source) {
+            sum += v;
+        }
+        return sum;
     }
 
 }
