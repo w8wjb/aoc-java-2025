@@ -86,7 +86,6 @@ public class Day8 {
             return 0;
         }
 
-
         @Override
         public String toString() {
             return String.format("%s -> %s (%.0f)", from.toString(), to.toString(), distance);
@@ -96,15 +95,29 @@ public class Day8 {
     static class JunctionBox {
 
         final Point3D location;
-        int circuit = -1;
+
+        Set<JunctionBox> network = new HashSet<>();
 
         JunctionBox(Point3D location) {
             this.location = location;
+            network.add(this);
         }
 
         @Override
         public String toString() {
-            return String.format("%s [%d]", location.toString(), circuit);
+            return location.toString();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof JunctionBox)) return false;
+            JunctionBox that = (JunctionBox) o;
+            return Objects.equals(location, that.location);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(location);
         }
     }
 
@@ -118,7 +131,7 @@ public class Day8 {
         }
 
 
-        TreeSet<Edge> edges = new TreeSet<>();
+        List<Edge> edges = new ArrayList<>();
 
         for (int i = 0; i < boxes.size(); i++) {
             JunctionBox a = boxes.get(i);
@@ -128,52 +141,100 @@ public class Day8 {
             }
         }
 
-        int circuit = 0;
+        Collections.sort(edges);
 
-        int connected = 0;
-        for (Edge edge : edges) {
-            if (edge.from.circuit < 0) {
-                if (edge.to.circuit < 0) {
-                    circuit++;
-                    edge.from.circuit = circuit;
-                    edge.to.circuit = circuit;
-                } else {
-                    edge.from.circuit = edge.to.circuit;
-                }
-            } else {
-                if (edge.to.circuit < 0) {
-                    edge.to.circuit = edge.from.circuit;
-                }
-            }
-            connected++;
+        for (int connection = 0; connection < maxConnections; connection++) {
 
-            if (connected >= maxConnections) {
-                break;
+            Edge edge = edges.get(connection);
+
+            Set<JunctionBox> networkA = edge.from.network;
+            Set<JunctionBox> networkB = edge.to.network;
+
+            if (networkA.contains(edge.to) || networkB.contains(edge.from)) {
+                continue;
             }
 
+            Set<JunctionBox> joined = new HashSet<>();
+            joined.addAll(networkA);
+            joined.addAll(networkB);
+
+            for (var box : joined) {
+                box.network = joined;
+            }
         }
 
-        Map<Integer, Integer> circuitCounts = new HashMap<>();
+
+        IdentityHashMap<Set<JunctionBox>, Integer> networkSizes = new IdentityHashMap<>();
+
         for (var box : boxes) {
-            if (box.circuit >= 0) {
-                int count = circuitCounts.getOrDefault(box.circuit, 0);
-                circuitCounts.put(box.circuit, count + 1);
-            }
+            networkSizes.put(box.network, box.network.size());
         }
-        List<Integer> counts = new ArrayList<>(circuitCounts.values());
-        Collections.sort(counts);
+
+        List<Integer> sizes = new ArrayList<>(networkSizes.values());
+        Collections.sort(sizes);
+        Collections.reverse(sizes);
 
         int result = 1;
+
         for (int i = 0; i < 3; i++) {
-            result *= counts.get(i);
+            result *= sizes.get(i);
         }
+
 
         return result;
     }
 
     public long solvePuzzle2(List<String> input) {
 
-        return 0;
+        List<JunctionBox> boxes = new ArrayList<>();
+
+        for (String line : input) {
+            boxes.add(new JunctionBox(new Point3D(line)));
+        }
+
+
+        List<Edge> edges = new ArrayList<>();
+
+        for (int i = 0; i < boxes.size(); i++) {
+            JunctionBox a = boxes.get(i);
+            for (int j = i + 1; j < boxes.size(); j++) {
+                JunctionBox b = boxes.get(j);
+                edges.add(new Edge(a, b));
+            }
+        }
+
+        int allBoxesCount = boxes.size();
+        Collections.sort(edges);
+
+        long xa = 0;
+        long xb = 0;
+
+        for (Edge edge : edges) {
+
+            Set<JunctionBox> networkA = edge.from.network;
+            Set<JunctionBox> networkB = edge.to.network;
+
+            if (networkA.contains(edge.to) || networkB.contains(edge.from)) {
+                continue;
+            }
+
+            Set<JunctionBox> joined = new HashSet<>();
+            joined.addAll(networkA);
+            joined.addAll(networkB);
+
+            if (joined.size() == allBoxesCount) {
+                xa = edge.from.location.x;
+                xb = edge.to.location.x;
+                break;
+            }
+
+            for (var box : joined) {
+                box.network = joined;
+            }
+        }
+
+
+        return xa * xb;
 
     }
 
