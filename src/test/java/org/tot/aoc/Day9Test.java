@@ -6,38 +6,38 @@ import org.tot.helper.ResourceHelper;
 
 import java.util.List;
 
-public class DayXXTest {
+public class Day9Test {
 
     @Test
     public void testSample1() {
 
-        List<String> lines = ResourceHelper.loadLinesFromFile("DayXX/sample1.txt");
+        List<String> lines = ResourceHelper.loadLinesFromFile("Day9/sample1.txt");
 
-        DayXX day = new DayXX();
+        Day9 day = new Day9();
 
         long result = day.solvePuzzle1(lines);
 
-        Assert.assertEquals(12345L, result);
+        Assert.assertEquals(50L, result);
     }
 
     @Test
     public void testSolution1() {
 
-        List<String> lines = ResourceHelper.loadLinesFromFile("DayXX/input1.txt");
+        List<String> lines = ResourceHelper.loadLinesFromFile("Day9/input1.txt");
 
-        DayXX day = new DayXX();
+        Day9 day = new Day9();
 
         long result = day.solvePuzzle1(lines);
 
-        Assert.assertEquals(12345L, result);
+        Assert.assertEquals(4748769124L, result);
     }
 
     @Test
     public void testSample2() {
 
-        List<String> lines = ResourceHelper.loadLinesFromFile("DayXX/sample1.txt");
+        List<String> lines = ResourceHelper.loadLinesFromFile("Day9/sample1.txt");
 
-        DayXX day = new DayXX();
+        Day9 day = new Day9();
 
         long result = day.solvePuzzle2(lines);
 
@@ -47,9 +47,9 @@ public class DayXXTest {
     @Test
     public void testSolution2() {
 
-        List<String> lines = ResourceHelper.loadLinesFromFile("DayXX/input1.txt");
+        List<String> lines = ResourceHelper.loadLinesFromFile("Day9/input1.txt");
 
-        DayXX day = new DayXX();
+        Day9 day = new Day9();
 
         long result = day.solvePuzzle2(lines);
 
