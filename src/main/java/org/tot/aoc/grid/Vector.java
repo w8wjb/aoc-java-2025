@@ -57,6 +57,9 @@ public class Vector {
         return new Vector(this.x * scalar, this.y * scalar);
     }
 
+    public Vector add(Vector other) {
+        return new Vector(this.x + other.x, this.y + other.y);
+    }
 
     @Override
     public String toString() {
