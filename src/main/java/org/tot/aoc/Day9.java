@@ -111,10 +111,16 @@ public class Day9 {
         long minY = Long.MAX_VALUE;
         long maxY = 0;
 
+        SortedSet<Long> xSet = new TreeSet<>();
+        SortedSet<Long> ySet = new TreeSet<>();
+
         for (String line : input) {
             String[] split = line.split(",");
             long x = Long.parseLong(split[0]);
             long y = Long.parseLong(split[1]);
+
+            xSet.add(x);
+            ySet.add(y);
 
             minX = Math.min(minX, x);
             maxX = Math.max(maxX, x);
@@ -125,78 +131,82 @@ public class Day9 {
             redTileList.add(p);
         }
 
-        redTiles = redTileList.toArray(new Point[0]);
 
-        long maxArea = 0L;
+        long[] xAxis = xSet.stream().mapToLong(Long::longValue).toArray();
+        long[] yAxis = ySet.stream().mapToLong(Long::longValue).toArray();
 
-        // Clockwise
-        for (int t = 0; t < redTiles.length; t++) {
+        List<Point> compressedTiles = redTileList
+                .stream()
+                .map(p -> {
+                    long xs = Arrays.binarySearch(xAxis, p.x);
+                    long ys = Arrays.binarySearch(yAxis, p.y);
+                    return new Point(xs,ys);
+                })
+                .collect(Collectors.toList());
 
-            Point start = redTiles[t];
-            Point next = redTiles[Math.floorMod(t + 1, redTiles.length)];
+        HashGrid<Character> grid = new HashGrid<>('.');
 
-            long dx = next.x - start.x;
-            long dy = next.y - start.y;
+        for (int i = 0; i < compressedTiles.size(); i++) {
+            Point from = compressedTiles.get(i);
+            Point to = compressedTiles.get((i + 1) % compressedTiles.size());
 
-            Point opp = null;
+            grid.put(from, '#');
+            grid.put(to, '#');
 
-            if (dy < 0) { // up
-                opp = seekOppositeCorner(t, true, p -> p.y > start.y);
-
-            } else if (dx > 0) { // right
-
-                opp = seekOppositeCorner(t, true, p -> p.x < start.x);
-
-            } else if (dx < 0) { // left
-
-                opp = seekOppositeCorner(t, true, p -> p.y < start.y);
-
-            } else { // down
-
-                opp = seekOppositeCorner(t, true, p -> p.x < start.x);
-
+            long dx = to.x - from.x;
+            long dy = to.y - from.y;
+            if (dx != 0) {
+                dx /= Math.abs(dx);
+            }
+            if (dy != 0) {
+                dy /= Math.abs(dy);
             }
 
-            if (opp != null) {
-                maxArea = Math.max(maxArea, area(start, opp));
+            Vector dir =  new Vector(dx, dy);
+
+            Point next = from.add(dir);
+            while (!next.equals(to)) {
+                grid.put(next, 'O');
+                next = next.add(dir);
             }
 
+        }
+
+        floodFill(grid);
+
+        grid.print();
+
+        return 0;
+
+    }
+
+    void floodFill(HashGrid<Character> grid) {
+
+        long midX = 2 + grid.minX + (grid.maxX - grid.minX) / 3;
+        long midY = 2 + grid.minY + (grid.maxY - grid.minY) / 2;
+        Point start = new Point(midX, midY);
+
+        Deque<Point> queue = new ArrayDeque<>();
+        queue.push(start);
+
+        while (!queue.isEmpty()) {
+            Point current = queue.poll();
+
+            grid.put(current, '0');
+            for (Vector v : Vector.CARDINAL) {
+                Point neighbor = current.add(v);
+                if (grid.isWithinBounds(neighbor)) {
+                    char c = grid.get(neighbor);
+                    if (c == '.') {
+                        grid.put(neighbor, '0');
+                        queue.add(neighbor);
+                    }
+                }
+            }
 
         }
 
 
-        return maxArea;
-
-    }
-
-    Point seekOppositeCorner(int startIndex, boolean forward, Predicate<Point> stopWhen) {
-        Point last = null;
-
-        for (int offset = 2; offset <= redTiles.length; offset++) {
-
-            int check;
-            if (forward) {
-                check = Math.floorMod(startIndex + offset, redTiles.length);
-            } else {
-                check = Math.floorMod(startIndex - offset, redTiles.length);
-            }
-
-            Point p = redTiles[check];
-            if (stopWhen.test(p)) {
-                break;
-            }
-            last = p;
-        }
-
-        return last;
-    }
-
-    long area(Point a, Point b) {
-        long minX = Math.min(a.x, b.x);
-        long maxX = Math.max(a.x, b.x);
-        long minY = Math.min(a.y, b.y);
-        long maxY = Math.max(a.y, b.y);
-        return (maxX - minX) * (maxY - minY);
     }
 
 }
