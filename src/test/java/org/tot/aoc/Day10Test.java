@@ -17,7 +17,7 @@ public class Day10Test {
 
         long result = day.solvePuzzle1(lines);
 
-        Assert.assertEquals(12345L, result);
+        Assert.assertEquals(7, result);
     }
 
     @Test
@@ -29,7 +29,7 @@ public class Day10Test {
 
         long result = day.solvePuzzle1(lines);
 
-        Assert.assertEquals(12345L, result);
+        Assert.assertEquals(417L, result);
     }
 
     @Test
