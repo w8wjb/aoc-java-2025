@@ -1,24 +1,17 @@
 package org.tot.aoc;
 
-import org.tot.aoc.grid.HashGrid;
 import org.tot.aoc.grid.Point;
-import org.tot.aoc.grid.Vector;
 
-import javax.imageio.ImageIO;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.util.*;
+import java.awt.geom.Line2D;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 public class Day9 {
 
-    private Point[] redTiles;
-//    List<Corner> redTiles = new ArrayList<>();
-//    Map<Character, List<Corner>> cornerTypeMap = new HashMap<>();
+    List<Point> points = new ArrayList<>();
+    List<Line> lines = new ArrayList<>();
 
     public long solvePuzzle1(List<String> input) {
 
@@ -51,162 +44,178 @@ public class Day9 {
         return maxArea;
     }
 
-    private static class Corner {
+    private static class Line {
 
-        final Point location;
-        char type = '.';
+        final Point a;
+        final Point b;
 
-        Corner(Point location) {
-            this.location = location;
+        Line(Point a, Point b) {
+            this.a = a;
+            this.b = b;
         }
 
-        void setType(Point prev, Point next) {
-            Vector in = new Vector(0, 0);
-            if (prev.y < location.y) {
-                in = in.add(Vector.N);
-            } else if (prev.y > location.y) {
-                in = in.add(Vector.S);
-            } else if (prev.x < location.x) {
-                in = in.add(Vector.E);
-            } else {
-                in = in.add(Vector.W);
-            }
-
-            Vector out = new Vector(0, 0);
-            if (next.y < location.y) {
-                out = out.add(Vector.N);
-            } else if (next.y > location.y) {
-                out = out.add(Vector.S);
-            } else if (next.x < location.x) {
-                out = out.add(Vector.E);
-            } else {
-                out = out.add(Vector.W);
-            }
-
-            Vector dir = in.add(out);
-            if (dir.equals(Vector.SW)) {
-                this.type = '⌜';
-            } else if (dir.equals(Vector.SE)) {
-                this.type = '⌝';
-            } else if (dir.equals(Vector.NE)) {
-                this.type = '⌟';
-            } else if (dir.equals(Vector.NW)) {
-                this.type = '⌞';
-            }
-        }
-
-        @Override
-        public String toString() {
-            return String.format("%s %s", location.toString(), type);
+        boolean intersects(Line other) {
+            return Line2D.linesIntersect(a.x, a.y, b.x, b.y, other.a.x, other.a.y, other.b.x, other.b.y);
         }
     }
 
+    private static class Rectangle {
+
+        final Point cornerA;
+        final Point cornerB;
+
+        final long minX;
+        final long maxX;
+        final long minY;
+        final long maxY;
+        final long height;
+        final long width;
+
+        public Rectangle(Point cornerA, Point cornerB) {
+            this.cornerA = cornerA;
+            this.cornerB = cornerB;
+            minX = Math.min(cornerA.x, cornerB.x);
+            maxX = Math.max(cornerA.x, cornerB.x);
+            minY = Math.min(cornerA.y, cornerB.y);
+            maxY = Math.max(cornerA.y, cornerB.y);
+            this.height = maxY - minY;
+            this.width = maxX - minX;
+        }
+
+        boolean isInside(Point p) {
+            return p.x > minX && p.x < maxX &&
+                    p.y > minY && p.y < maxY;
+        }
+
+        boolean intersects(Line line) {
+            // If either endpoint is inside the rectangle, we count that as intersection
+            if (isInside(line.a) || isInside(line.b)) {
+                return true;
+            }
+
+            // W
+            if (Line2D.linesIntersect(this.minX, this.minY, this.minX, this.maxY,
+                    line.a.x, line.a.y, line.b.x, line.b.y)) {
+                return true;
+            }
+
+            // E
+            if (Line2D.linesIntersect(this.maxX, this.minY, this.maxX, this.maxY,
+                    line.a.x, line.a.y, line.b.x, line.b.y)) {
+                return true;
+            }
+
+            // N
+            if (Line2D.linesIntersect(this.minX, this.minY, this.maxX, this.minY,
+                    line.a.x, line.a.y, line.b.x, line.b.y)) {
+                return true;
+            }
+
+            // S
+            if (Line2D.linesIntersect(this.minX, this.maxY, this.maxX, this.maxY,
+                    line.a.x, line.a.y, line.b.x, line.b.y)) {
+                return true;
+            }
+
+            return false;
+        }
+
+        long area() {
+            return Math.abs(maxX - minX + 1) * Math.abs(maxY - minY + 1);
+        }
+
+    }
+
+
     public long solvePuzzle2(List<String> input) {
 
+        Point last = null;
 
-        List<Point> redTileList = new ArrayList<>();
-
-        long minX = Long.MAX_VALUE;
-        long maxX = 0;
-        long minY = Long.MAX_VALUE;
-        long maxY = 0;
-
-        SortedSet<Long> xSet = new TreeSet<>();
-        SortedSet<Long> ySet = new TreeSet<>();
+        long boundsMinX = Long.MAX_VALUE;
+        long boundsMaxX = 0;
+        long boundsMinY = Long.MAX_VALUE;
+        long boundsMaxY = 0;
 
         for (String line : input) {
             String[] split = line.split(",");
             long x = Long.parseLong(split[0]);
             long y = Long.parseLong(split[1]);
 
-            xSet.add(x);
-            ySet.add(y);
+            boundsMinX = Math.min(boundsMinX, x);
+            boundsMaxX = Math.max(boundsMaxX, x);
+            boundsMinY = Math.min(boundsMinY, y);
+            boundsMaxY = Math.max(boundsMaxY, y);
 
-            minX = Math.min(minX, x);
-            maxX = Math.max(maxX, x);
-            minY = Math.min(minY, y);
-            maxY = Math.max(maxY, y);
+            Point p = new Point(x, y);
+            points.add(p);
 
-            Point p = new Point(x,y);
-            redTileList.add(p);
+            if (last == null) {
+                last = p;
+            } else {
+                lines.add(new Line(last, p));
+            }
         }
+        lines.add(new Line(last, points.get(0)));
 
+        long maxArea = 0;
 
-        long[] xAxis = xSet.stream().mapToLong(Long::longValue).toArray();
-        long[] yAxis = ySet.stream().mapToLong(Long::longValue).toArray();
+        Point lastA = null;
+        Point lastB = null;
+        Rectangle largestRectangle = null;
 
-        List<Point> compressedTiles = redTileList
-                .stream()
-                .map(p -> {
-                    long xs = Arrays.binarySearch(xAxis, p.x);
-                    long ys = Arrays.binarySearch(yAxis, p.y);
-                    return new Point(xs,ys);
-                })
-                .collect(Collectors.toList());
+        for (int i = 0; i < points.size(); i++) {
+            Point p1 = points.get(i);
+            for (int j = i + 1; j < points.size(); j++) {
+                Point p2 = points.get(j);
 
-        HashGrid<Character> grid = new HashGrid<>('.');
+                Rectangle rect = new Rectangle(p1, p2);
 
-        for (int i = 0; i < compressedTiles.size(); i++) {
-            Point from = compressedTiles.get(i);
-            Point to = compressedTiles.get((i + 1) % compressedTiles.size());
+                long area = rect.area();
+                if (area <= maxArea) {
+                    continue;
+                }
 
-            grid.put(from, '#');
-            grid.put(to, '#');
-
-            long dx = to.x - from.x;
-            long dy = to.y - from.y;
-            if (dx != 0) {
-                dx /= Math.abs(dx);
-            }
-            if (dy != 0) {
-                dy /= Math.abs(dy);
-            }
-
-            Vector dir =  new Vector(dx, dy);
-
-            Point next = from.add(dir);
-            while (!next.equals(to)) {
-                grid.put(next, 'O');
-                next = next.add(dir);
-            }
-
-        }
-
-        floodFill(grid);
-
-        grid.print();
-
-        return 0;
-
-    }
-
-    void floodFill(HashGrid<Character> grid) {
-
-        long midX = 2 + grid.minX + (grid.maxX - grid.minX) / 3;
-        long midY = 2 + grid.minY + (grid.maxY - grid.minY) / 2;
-        Point start = new Point(midX, midY);
-
-        Deque<Point> queue = new ArrayDeque<>();
-        queue.push(start);
-
-        while (!queue.isEmpty()) {
-            Point current = queue.poll();
-
-            grid.put(current, '0');
-            for (Vector v : Vector.CARDINAL) {
-                Point neighbor = current.add(v);
-                if (grid.isWithinBounds(neighbor)) {
-                    char c = grid.get(neighbor);
-                    if (c == '.') {
-                        grid.put(neighbor, '0');
-                        queue.add(neighbor);
-                    }
+                if (isValid(rect, p1, p2)) {
+                    maxArea = Math.max(maxArea, area);
+                    lastA = p1;
+                    lastB = p2;
+                    largestRectangle = rect;
                 }
             }
-
         }
 
 
+        if (largestRectangle != null) {
+            System.out.printf("%d, %d %d,%d%n", largestRectangle.minX, largestRectangle.minY, largestRectangle.width, largestRectangle.height);
+        }
+
+
+        return maxArea;
+
     }
+
+    boolean isValid(Rectangle rect, Point p1, Point p2) {
+        for (Point p : points) {
+            if (rect.isInside(p)) {
+                return false;
+            }
+        }
+
+
+        for (Line line : lines) {
+            if (line.a.equals(p1)
+                    || line.b.equals(p1)
+                    || line.a.equals(p2)
+                    || line.b.equals(p2)) {
+                continue;
+            }
+
+            if (rect.intersects(line)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
 
 }
