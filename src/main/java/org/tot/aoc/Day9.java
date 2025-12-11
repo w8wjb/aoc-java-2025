@@ -41,20 +41,6 @@ public class Day9 {
         return maxArea;
     }
 
-    private static class Line {
-
-        final Point a;
-        final Point b;
-
-        Line(Point a, Point b) {
-            this.a = a;
-            this.b = b;
-        }
-
-        boolean intersects(Line other) {
-            return Line2D.linesIntersect(a.x, a.y, b.x, b.y, other.a.x, other.a.y, other.b.x, other.b.y);
-        }
-    }
 
     private static class Rectangle {
 
