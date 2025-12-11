@@ -35,13 +35,13 @@ public class Day11Test {
     @Test
     public void testSample2() {
 
-        List<String> lines = ResourceHelper.loadLinesFromFile("Day11/sample1.txt");
+        List<String> lines = ResourceHelper.loadLinesFromFile("Day11/sample2.txt");
 
         Day11 day = new Day11();
 
         long result = day.solvePuzzle2(lines);
 
-        Assert.assertEquals(12345L, result);
+        Assert.assertEquals(2L, result);
     }
 
     @Test
@@ -53,7 +53,7 @@ public class Day11Test {
 
         long result = day.solvePuzzle2(lines);
 
-        Assert.assertEquals(12345L, result);
+        Assert.assertEquals(303012373210128L, result);
     }
 
 }

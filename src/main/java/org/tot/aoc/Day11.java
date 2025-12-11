@@ -4,7 +4,11 @@ import java.util.*;
 
 public class Day11 {
 
-    private Map<String, List<String>> parseInput(List<String> input) {
+    Map<String, List<String>> devices = new HashMap<>();
+
+    Map<String, Long> pathCounts = new HashMap<>();
+
+    private static Map<String, List<String>> parseInput(List<String> input) {
         Map<String, List<String>> devices = new HashMap<>();
 
         for (String line : input) {
@@ -27,26 +31,24 @@ public class Day11 {
 
     static class Path {
 
-        final List<String> steps;
+        long stepCount;
         String currentDeviceId;
 
         Path(String currentDeviceId) {
             this.currentDeviceId = currentDeviceId;
-            steps = new ArrayList<>();
-            steps.add(currentDeviceId);
+            stepCount = 0;
         }
 
         Path(Path prev, String currentDeviceId) {
             this.currentDeviceId = currentDeviceId;
-            steps = new ArrayList<>(prev.steps);
-            steps.add(currentDeviceId);
+            stepCount = prev.stepCount + 1;
         }
 
     }
 
     public long solvePuzzle1(List<String> input) {
 
-        Map<String, List<String>> devices = parseInput(input);
+        this.devices = parseInput(input);
 
 
         Queue<Path> queue = new ArrayDeque<>();
@@ -63,7 +65,6 @@ public class Day11 {
             for (String outputDeviceId : outputs) {
                 switch (outputDeviceId) {
                     case "out":
-                        System.out.println(path.steps);
                         pathCount++;
                         // fallthrough
                     case "you":
@@ -81,8 +82,42 @@ public class Day11 {
 
     public long solvePuzzle2(List<String> input) {
 
-        return 0;
+        this.devices = parseInput(input);
 
+        return pathsToOut("svr", false, false);
     }
+
+    private long pathsToOut(String deviceId, boolean fftSeen, boolean dacSeen) {
+
+        String memoKey = String.format("%s%d%s", deviceId, fftSeen ? 1 : 0, dacSeen ? 1 : 0);
+
+        Long memoCount = pathCounts.get(memoKey);
+        if (memoCount != null) {
+            return memoCount;
+        }
+
+        List<String> outputs = devices.get(deviceId);
+
+
+        long count = 0;
+        for (String outputDeviceId : outputs) {
+            if ("out".equals(outputDeviceId)) {
+                return fftSeen && dacSeen ? 1 : 0;
+            }
+
+            if ("dac".equals(outputDeviceId)) {
+                count += pathsToOut(outputDeviceId, fftSeen, true);
+            } else if ("fft".equals(outputDeviceId)) {
+                count += pathsToOut(outputDeviceId, true, dacSeen);
+            } else {
+                count += pathsToOut(outputDeviceId, fftSeen, dacSeen);
+            }
+
+        }
+
+        pathCounts.put(memoKey, count);
+        return count;
+    }
+
 
 }
